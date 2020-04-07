@@ -102,8 +102,8 @@ class Board(pygame.sprite.Sprite):
 
         for i in range(self.SIZE):
             for j in range(self.SIZE):
-                sum += self.state[i, j]
-                sum_transposed += self.state[j, i]
+                sum = self.update_sum(sum, self.state[i, j])
+                sum_transposed =  self.update_sum(sum_transposed, self.state[j, i])
                 if sum == self.WIN_SCORE or sum_transposed == self.WIN_SCORE:
                     return 1 # X Wins
                 elif sum == -self.WIN_SCORE or sum_transposed == -self.WIN_SCORE:
@@ -176,12 +176,20 @@ def main():
     while running:
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if (event.type == pygame.QUIT or
+                event.type == pygame.KEYDOWN and 
+                event.key == pygame.K_ESCAPE):
                 running = False
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 print("Board Cleared!")
                 board.reset_board()
+
+            if winner != 0 and event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                print("New Game!")
+                board.welcome_user()
+                board.reset_board()
+                winner = 0
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if board.move_number % 2 == 0:
@@ -194,6 +202,7 @@ def main():
                     if winner  < 0:
                         board.screen.fill((255, 255, 255))
                         board.congratulate_winner('o')
+
         if winner == 0:
             board.draw_board()
             board.update()
