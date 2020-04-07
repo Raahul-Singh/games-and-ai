@@ -1,2 +1,2 @@
 # games-and-ai
-Repositories for small games and game playing agents.
+Repository for small games and game playing agents.
