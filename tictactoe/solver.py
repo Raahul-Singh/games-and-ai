@@ -17,6 +17,14 @@ class Engine:
             self.state[x, y] = -1
         self.current_move = (x, y)
 
+    def perform_minimax_alpha_beta_pruning(self):
+        (x, y), _ = self.minimax_alpha_beta_pruning(self.state, self.player, -np.inf, np.inf)
+        if self.player == 'x':
+            self.state[x, y] = 1
+        else:
+            self.state[x, y] = -1
+        self.current_move = (x, y)
+
     def perform_depth_limited_minimax(self, depth):
         (x, y), _ = self.depth_limited_minimax(self.state, self.player, depth)
         if self.player == 'x':
@@ -25,6 +33,13 @@ class Engine:
             self.state[x, y] = -1
         self.current_move = (x, y)
 
+    def perform_depth_limited_alpha_beta_pruning(self, depth):
+        (x, y), _ = self.depth_limited_alpha_beta_pruning(self.state, self.player, depth, -np.inf, np.inf)
+        if self.player == 'x':
+            self.state[x, y] = 1
+        else:
+            self.state[x, y] = -1
+        self.current_move = (x, y)
 
     def get_actions(self, state):
         actions = []
@@ -121,8 +136,8 @@ class Engine:
 
 
     def evaluation_heuristic(self, state, player):
-        a = self.board_traversal_heuristic(state, player)
-        return a
+        return self.board_traversal_heuristic(state, player)
+
 
     def goal_test(self, state):
         return self.board_traversal(state)
@@ -172,11 +187,68 @@ class Engine:
 
             return best_move, best_value
 
+    def minimax_alpha_beta_pruning(self, state, player, alpha, beta):
+        value = self.goal_test(state)
+
+        if value != 0:
+            return (-1, -1), value
+
+        elif player == 'x':
+            best_value = -np.inf
+            best_move = (-1, -1)
+            actions = self.get_actions(state)
+
+            if len(actions) == 0:
+                return (-1, -1), 0
+
+            for action in actions:
+                x, y = action
+                state[x, y] = 1
+                max_move, max_value = self.minimax_alpha_beta_pruning(state, 'o', alpha, beta)
+                state[x, y] = 0
+
+                if max_value > best_value:
+                    best_value = max_value
+                    best_move = action
+
+                if max_value < alpha:
+                    alpha = max_value
+                
+                if alpha >= beta:
+                    break
+
+            return best_move, best_value
+
+        else:
+            best_value = np.inf
+            best_move = (-1, -1)
+            actions = self.get_actions(state)
+
+            if len(actions) == 0:
+                return (-1, -1), 0
+
+            for action in actions:
+                x, y = action
+                state[x, y] = -1
+                min_move, min_value = self.minimax_alpha_beta_pruning(state, 'x', alpha, beta)
+                state[x, y] = 0
+                if min_value < best_value:
+                    best_value = min_value
+                    best_move = action
+
+                if min_value < beta:
+                    beta = min_value
+
+                if alpha >= beta:
+                    break
+
+            return best_move, best_value
+
+
     def depth_limited_minimax(self, state, player, depth):
 
         if depth == 0:
-            a = self.board_traversal_heuristic(state, player)
-            return (-1, -1), a
+            return (-1, -1), self.board_traversal_heuristic(state, player)
 
         value = self.goal_test(state)
 
@@ -219,5 +291,67 @@ class Engine:
                 if min_value < best_value:
                     best_value = min_value
                     best_move = action
+
+            return best_move, best_value
+
+    def depth_limited_alpha_beta_pruning(self, state, player, depth, alpha, beta):
+
+        if depth == 0:
+            return (-1, -1), self.board_traversal_heuristic(state, player)
+
+        value = self.goal_test(state)
+
+        if value != 0:
+            return (-1, -1), value
+
+        elif player == 'x':
+            best_value = -np.inf
+            best_move = (-1, -1)
+            actions = self.get_actions(state)
+
+            if len(actions) == 0:
+                return (-1, -1), 0
+
+            for action in actions:
+                x, y = action
+                state[x, y] = 1
+                max_move, max_value = self.depth_limited_alpha_beta_pruning(state, 'o', depth-1, alpha, beta)
+                state[x, y] = 0
+
+                if max_value > best_value:
+                    best_value = max_value
+                    best_move = action
+
+                if max_value > alpha:
+                    alpha = max_value
+                
+                if alpha >= beta:
+                    break
+
+            return best_move, best_value
+
+        else:
+            best_value = np.inf
+            best_move = (-1, -1)
+            actions = self.get_actions(state)
+
+            if len(actions) == 0:
+                return (-1, -1), 0
+
+            for action in actions:
+                x, y = action
+                state[x, y] = -1
+                min_move, min_value = self.depth_limited_alpha_beta_pruning(state, 'x', depth-1, alpha, beta)
+                state[x, y] = 0
+
+                if min_value < best_value:
+                    best_value = min_value
+                    best_move = action
+
+                if min_value < beta:
+                    beta = min_value
+                
+                if alpha >= beta:
+                    break
 
             return best_move, best_value
