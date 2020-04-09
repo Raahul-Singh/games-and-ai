@@ -111,34 +111,29 @@ class Board(pygame.sprite.Sprite):
 
         for i in range(self.SIZE):
             for j in range(self.SIZE):
+
                 sum = self.update_sum(sum, self.state[i, j])
                 sum_transposed =  self.update_sum(sum_transposed, self.state[j, i])
-                if sum == self.WIN_SCORE or sum_transposed == self.WIN_SCORE:
-                    return 1 # X Wins
-                elif sum == -self.WIN_SCORE or sum_transposed == -self.WIN_SCORE:
-                    return -1 # O Wins
-            sum = 0
-            sum_transposed = 0
 
-        for i in range(self.SIZE):
-            for j in range(self.SIZE):
-                if j+i >= self.SIZE:
-                    break
+                if not (j+i >= self.SIZE):
+                    sum_diag1 = self.update_sum(sum_diag1, self.state[j, j + i])
+                    sum_diag2 = self.update_sum(sum_diag2, self.state[j + i, j])
+                    sum_off_diag1 = self.update_sum(sum_off_diag1, self.state[i + j, self.SIZE - j - 1])
+                    sum_off_diag2 = self.update_sum(sum_off_diag2, self.state[j, self.SIZE - j - i - 1])
 
-                sum_diag1 = self.update_sum(sum_diag1, self.state[j, j + i])
-                sum_diag2 = self.update_sum(sum_diag2, self.state[j + i, j])
-                sum_off_diag1 = self.update_sum(sum_off_diag1, self.state[i + j, self.SIZE - j - 1])
-                sum_off_diag2 = self.update_sum(sum_off_diag2, self.state[j, self.SIZE - j - i - 1])
-
-                for k in [sum_diag1, sum_diag2, sum_off_diag1, sum_off_diag2]:
+                for k in [sum, sum_transposed, sum_diag1, sum_diag2, sum_off_diag1, sum_off_diag2]:
                     if k == self.WIN_SCORE:
                         return 1 # X Wins
                     elif k == -self.WIN_SCORE:
                         return -1 # O Wins
+
+            sum = 0
+            sum_transposed = 0
             sum_diag1 = 0
             sum_diag2 = 0
             sum_off_diag1 = 0
             sum_off_diag2 = 0
+
         return 0
 
     def win_test(self):
@@ -168,114 +163,14 @@ class Player(pygame.sprite.Sprite):
         self.is_AI = is_AI
         self.SIZE = SIZE
         self.WIN_SCORE = WIN_SCORE
-        self.state = np.zeros((self.SIZE, self.SIZE))
-        self.current_move = None
 
-    def board_player_interface(self, x, y):
-        if self.char == 'x':
-            self.state[x, y] = -1
-        else:
-            self.state[x, y] = 1
-
-    def player_board_interface(self):
-        return self.current_move
-
-    def get_chilren(self, state):
-        children = []
-        for x, y in self.get_actions():
-            children.append(self.generate_state(state, x, y))
-        return children
-
-    def generate_state(self, parent_state, x, y):
-        new_state = np.copy(parent_state)
-        return self.perform_action(x, y, new_state)
-
-    def get_state(self):
-        return self.board.state
-
-    def perform_action(self, x, y, state):
-        if self.char == 'x' and self.check_if_valid_move(x, y):
-            state[x, y] = 1
-        elif self.char == 'o' and self.check_if_valid_move(x, y):
-            state[x, y] = -1
-        return state
-
-    def get_actions(self, state):
-        actions = []
-        for i in range(self.SIZE):
-            for j in range(self.SIZE):
-                if self.check_if_valid_move(i, j, state):
-                    actions.append((i, j))
-        return actions
-
-    def check_if_valid_move(self, x, y, state):
-        return state[x, y] == 0
-
-    def goal_test(self, state):
-        result = self.board_traversal(state)
-        if result > 0 and self.char == 'x':
-            return +1
-        elif result < 0 and self.char == '0':
-            return -1
-        else:
-            return 0
-
-    def update_sum(self, a, b):
-        if b == 0:
-            return 0
-        elif a > 0 and b < 0:
-            return -1
-        elif a < 0 and b > 0:
-            return 1
-        else:
-            return a + b
-
-    def board_traversal(self, state):
-        sum = 0
-        sum_transposed = 0
-        sum_diag1 = 0
-        sum_diag2 = 0
-        sum_off_diag1 = 0
-        sum_off_diag2 = 0
-
-        for i in range(self.SIZE):
-            for j in range(self.SIZE):
-                sum = self.update_sum(sum, state[i, j])
-                sum_transposed =  self.update_sum(sum_transposed, state[j, i])
-                if sum == self.WIN_SCORE or sum_transposed == self.WIN_SCORE:
-                    return 1 # X Wins
-                elif sum == -self.WIN_SCORE or sum_transposed == -self.WIN_SCORE:
-                    return -1 # O Wins
-            sum = 0
-            sum_transposed = 0
-
-        for i in range(self.SIZE):
-            for j in range(self.SIZE):
-                if j+i >= self.SIZE:
-                    break
-
-                sum_diag1 = self.update_sum(sum_diag1, state[j, j + i])
-                sum_diag2 = self.update_sum(sum_diag2, state[j + i, j])
-                sum_off_diag1 = self.update_sum(sum_off_diag1, state[i + j, self.SIZE - j - 1])
-                sum_off_diag2 = self.update_sum(sum_off_diag2, state[j, self.SIZE - j - i - 1])
-
-                for k in [sum_diag1, sum_diag2, sum_off_diag1, sum_off_diag2]:
-                    if k == self.WIN_SCORE:
-                        return 1 # X Wins
-                    elif k == -self.WIN_SCORE:
-                        return -1 # O Wins
-            sum_diag1 = 0
-            sum_diag2 = 0
-            sum_off_diag1 = 0
-            sum_off_diag2 = 0
-        return 0
 
 def main():
     pygame.init()
     running = True
-    player_x = Player(first=True)
-    player_o = Player(first=False)
-    board = Board(720, 720, 3, 3, [player_x, player_o])
+    player_x = Player(first=True, SIZE=4, WIN_SCORE=3)
+    player_o = Player(first=False, SIZE=4, WIN_SCORE=3)
+    board = Board(800, 800, 4, 3, [player_x, player_o])
     winner  = 0
     board.welcome_user()
     pygame.display.flip()
