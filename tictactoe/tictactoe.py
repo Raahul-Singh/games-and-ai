@@ -141,7 +141,6 @@ class Board(pygame.sprite.Sprite):
 
     def win_test(self):
         result = self.board_traversal()
-        print("for state, \n",self.state,"result = ", result)
         if result > 0 :
             print("X Wins")
             return +1
@@ -178,7 +177,8 @@ class Player(pygame.sprite.Sprite):
 
     def player_board_interface(self):
         print("before move :\n", self.engine.state)
-        self.engine.perform_action()
+        # self.engine.perform_minimax()
+        self.engine.perform_depth_limited_minimax(depth=3)
         print("after move :\n", self.engine.state)
         return self.engine.current_move
 
@@ -188,9 +188,9 @@ class Player(pygame.sprite.Sprite):
 def main():
     pygame.init()
     running = True
-    player_x = Player(first=True,  is_AI=False, SIZE=3, WIN_SCORE=3)
-    player_o = Player(first=False, is_AI=True, SIZE=3, WIN_SCORE=3)
-    board = Board(800, 800, 3, 3, [player_x, player_o])
+    player_x = Player(first=True,  is_AI=False, SIZE=4, WIN_SCORE=3)
+    player_o = Player(first=False, is_AI=True, SIZE=4, WIN_SCORE=3)
+    board = Board(800, 800, 4, 3, [player_x, player_o])
     winner  = 0
     board.welcome_user()
     pygame.display.flip()

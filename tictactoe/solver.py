@@ -9,13 +9,22 @@ class Engine:
         self.state = np.zeros((self.SIZE, self.SIZE))
         self.current_move = (-1, -1)
 
-    def perform_action(self):
+    def perform_minimax(self):
         (x, y), _ = self.minimax(self.state, self.player)
         if self.player == 'x':
             self.state[x, y] = 1
         else:
             self.state[x, y] = -1
         self.current_move = (x, y)
+
+    def perform_depth_limited_minimax(self, depth):
+        (x, y), _ = self.depth_limited_minimax(self.state, self.player, depth)
+        if self.player == 'x':
+            self.state[x, y] = 1
+        else:
+            self.state[x, y] = -1
+        self.current_move = (x, y)
+
 
     def get_actions(self, state):
         actions = []
@@ -70,6 +79,51 @@ class Engine:
 
         return 0
 
+    def board_traversal_heuristic(self, state, player):
+        """
+        adding states as squares of contigous values discounted by linear scale of opposite values
+
+        """
+        sum = 0
+        sum_transposed = 0
+        sum_diag1 = 0
+        sum_diag2 = 0
+        sum_off_diag1 = 0
+        sum_off_diag2 = 0
+        heuristic_value = 0
+
+        for i in range(self.SIZE):
+            for j in range(self.SIZE):
+
+                sum = self.update_sum(sum, state[i, j])
+                sum_transposed =  self.update_sum(sum_transposed, state[j, i])
+
+                if not (j+i >= self.SIZE):
+                    sum_diag1 = self.update_sum(sum_diag1, state[j, j + i])
+                    sum_diag2 = self.update_sum(sum_diag2, state[j + i, j])
+                    sum_off_diag1 = self.update_sum(sum_off_diag1, state[i + j, self.SIZE - j - 1])
+                    sum_off_diag2 = self.update_sum(sum_off_diag2, state[j, self.SIZE - j - i - 1])
+
+                for k in [sum, sum_transposed, sum_diag1, sum_diag2, sum_off_diag1, sum_off_diag2]:
+                        if player == 'x':
+                                heuristic_value -= (self.WIN_SCORE - k) ** 2
+                        elif player == 'o':
+                                heuristic_value += (self.WIN_SCORE + k) ** 2
+
+            sum = 0
+            sum_transposed = 0
+            sum_diag1 = 0
+            sum_diag2 = 0
+            sum_off_diag1 = 0
+            sum_off_diag2 = 0
+
+        return heuristic_value
+
+
+    def evaluation_heuristic(self, state, player):
+        a = self.board_traversal_heuristic(state, player)
+        return a
+
     def goal_test(self, state):
         return self.board_traversal(state)
     
@@ -111,6 +165,56 @@ class Engine:
                 x, y = action
                 state[x, y] = -1
                 min_move, min_value = self.minimax(state, 'x')
+                state[x, y] = 0
+                if min_value < best_value:
+                    best_value = min_value
+                    best_move = action
+
+            return best_move, best_value
+
+    def depth_limited_minimax(self, state, player, depth):
+
+        if depth == 0:
+            a = self.board_traversal_heuristic(state, player)
+            return (-1, -1), a
+
+        value = self.goal_test(state)
+
+        if value != 0:
+            return (-1, -1), value
+
+        elif player == 'x':
+            best_value = -np.inf
+            best_move = (-1, -1)
+            actions = self.get_actions(state)
+
+            if len(actions) == 0:
+                return (-1, -1), 0
+
+            for action in actions:
+                x, y = action
+                state[x, y] = 1
+                max_move, max_value = self.depth_limited_minimax(state, 'o', depth-1)
+                state[x, y] = 0
+
+                if max_value > best_value:
+                    best_value = max_value
+                    best_move = action
+
+            return best_move, best_value
+
+        else:
+            best_value = np.inf
+            best_move = (-1, -1)
+            actions = self.get_actions(state)
+
+            if len(actions) == 0:
+                return (-1, -1), 0
+
+            for action in actions:
+                x, y = action
+                state[x, y] = -1
+                min_move, min_value = self.depth_limited_minimax(state, 'x', depth-1)
                 state[x, y] = 0
                 if min_value < best_value:
                     best_value = min_value
