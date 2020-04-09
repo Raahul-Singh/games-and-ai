@@ -1,6 +1,6 @@
 import pygame
 import numpy as np
-
+from solver import Engine
 class Board(pygame.sprite.Sprite):
 
     def __init__(self, SCREEN_WIDTH, SCREEN_HEIGHT, SIZE, WIN_SCORE, players):
@@ -69,7 +69,7 @@ class Board(pygame.sprite.Sprite):
             self.move_number += 1
 
         for i in self.players:
-            if i.char != player.char:
+            if i.char != player.char and i.is_AI:
                 i.board_player_interface(x, y)
 
         if self.move_number >= 2 * (self.WIN_SCORE-1):
@@ -90,6 +90,9 @@ class Board(pygame.sprite.Sprite):
     def reset_board(self):
         self.state = np.zeros((self.SIZE, self.SIZE))
         self.move_number = 0
+        for i in self.players:
+            if i.is_AI:
+                i.player_reset()
 
     def update_sum(self, a, b):
         if b == 0:
@@ -138,6 +141,7 @@ class Board(pygame.sprite.Sprite):
 
     def win_test(self):
         result = self.board_traversal()
+        print("for state, \n",self.state,"result = ", result)
         if result > 0 :
             print("X Wins")
             return +1
@@ -163,14 +167,30 @@ class Player(pygame.sprite.Sprite):
         self.is_AI = is_AI
         self.SIZE = SIZE
         self.WIN_SCORE = WIN_SCORE
+        if self.is_AI:
+            self.engine = Engine(self.SIZE, self.WIN_SCORE, self.char)
 
+    def board_player_interface(self, x, y):
+        if self.char == 'x':
+            self.engine.state[x, y] = -1
+        else:
+            self.engine.state[x, y] = 1
+
+    def player_board_interface(self):
+        print("before move :\n", self.engine.state)
+        self.engine.perform_action()
+        print("after move :\n", self.engine.state)
+        return self.engine.current_move
+
+    def player_reset(self):
+        self.engine.state = np.zeros((self.SIZE, self.SIZE))
 
 def main():
     pygame.init()
     running = True
-    player_x = Player(first=True, SIZE=4, WIN_SCORE=3)
-    player_o = Player(first=False, SIZE=4, WIN_SCORE=3)
-    board = Board(800, 800, 4, 3, [player_x, player_o])
+    player_x = Player(first=True,  is_AI=False, SIZE=3, WIN_SCORE=3)
+    player_o = Player(first=False, is_AI=True, SIZE=3, WIN_SCORE=3)
+    board = Board(800, 800, 3, 3, [player_x, player_o])
     winner  = 0
     board.welcome_user()
     pygame.display.flip()
@@ -210,8 +230,8 @@ def main():
 
         if winner is None:
             board.screen.fill((255, 255, 255))
-            board.congratulate_winner('x')
             board.congratulate_winner('o')
+            board.congratulate_winner('x')
         elif winner > 0:
             board.screen.fill((255, 255, 255))
             board.congratulate_winner('x')
