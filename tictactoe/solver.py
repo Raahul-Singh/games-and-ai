@@ -117,38 +117,3 @@ class Engine:
                     best_move = action
 
             return best_move, best_value
-
-
-"""
-    def minimax(self, state, player):
-        value = self.goal_test(state)
-
-        if player == 'x':
-            best = [-1, -1, -np.inf]
-        else:
-            best = [-1, -1, +np.inf]
-
-        if value != 0:
-            return [-1, -1, value]
-
-        actions = self.get_actions(state)
-        if len(actions) == 0:
-            return [-1, -1, 0]
-
-        for cell in actions:
-            x, y = cell
-            state[x][y] = 1 if player == 'x' else -1
-            score = self.minimax(state, 'o' if player == 'x' else 'x')
-            state[x][y] = 0
-            score[0], score[1] = x, y
-
-            if player == 'x':
-                if score[2] > best[2]:
-                    best = score  # max value
-            else:
-                if score[2] < best[2]:
-                    best = score  # min value
-
-        return best
-
-"""
