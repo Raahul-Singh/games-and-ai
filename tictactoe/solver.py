@@ -2,12 +2,13 @@ import numpy as np
 import random
 
 class Engine:
-    def __init__(self, SIZE, WIN_SCORE, player):
+    def __init__(self, SIZE, WIN_SCORE, player, randomize=True):
         self.SIZE = SIZE
         self.WIN_SCORE = WIN_SCORE
         self.player = player
         self.state = np.zeros((self.SIZE, self.SIZE))
         self.current_move = (-1, -1)
+        self.randomize = randomize
 
     def perform_minimax(self):
         (x, y), _ = self.minimax(self.state, self.player)
@@ -47,6 +48,8 @@ class Engine:
             for j in range(self.SIZE):
                 if self.state[i, j] == 0:
                     actions.append((i,j))
+        if self.randomize:
+            actions = random.sample(actions, len(actions))
         return actions
 
     def update_sum(self, a, b):

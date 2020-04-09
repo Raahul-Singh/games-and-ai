@@ -178,7 +178,7 @@ class Player(pygame.sprite.Sprite):
     def player_board_interface(self):
         # self.engine.perform_minimax()
         # self.engine.perform_depth_limited_minimax(depth=3)
-        self.engine.perform_depth_limited_alpha_beta_pruning(depth=6)
+        self.engine.perform_depth_limited_alpha_beta_pruning(depth=5)
         # self.engine.perform_minimax_alpha_beta_pruning()
         return self.engine.current_move
 
@@ -188,9 +188,9 @@ class Player(pygame.sprite.Sprite):
 def main():
     pygame.init()
     running = True
-    player_x = Player(first=True,  is_AI=False, SIZE=4, WIN_SCORE=4)
-    player_o = Player(first=False, is_AI=True, SIZE=4, WIN_SCORE=4)
-    board = Board(800, 800, 4, 4, [player_x, player_o])
+    player_x = Player(first=True,  is_AI=True, SIZE=5, WIN_SCORE=4)
+    player_o = Player(first=False, is_AI=True, SIZE=5, WIN_SCORE=4)
+    board = Board(800, 800, 5, 4, [player_x, player_o])
     winner  = 0
     board.welcome_user()
     pygame.display.flip()
