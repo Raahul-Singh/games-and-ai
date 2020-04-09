@@ -3,7 +3,7 @@ import numpy as np
 
 class Board(pygame.sprite.Sprite):
 
-    def __init__(self, SCREEN_WIDTH, SCREEN_HEIGHT, SIZE, WIN_SCORE):
+    def __init__(self, SCREEN_WIDTH, SCREEN_HEIGHT, SIZE, WIN_SCORE, players):
         super(Board, self).__init__()
         self.SCREEN_WIDTH = SCREEN_WIDTH
         self.SCREEN_HEIGHT = SCREEN_HEIGHT
@@ -22,6 +22,7 @@ class Board(pygame.sprite.Sprite):
         self.o = pygame.transform.scale(pygame.image.load('O.png'),
                                        (self.CHAR_WIDTH, self.CHAR_HEIGHT))
         self.move_number = 0
+        self.players = players
 
     def welcome_user(self):
         self.screen.blit(self.welcome_page, (0,0))
@@ -52,9 +53,12 @@ class Board(pygame.sprite.Sprite):
                             (self.SCREEN_WIDTH, self.HEIGHT_STEP*i))
 
     def track_clicks(self, player):
-        x, y = pygame.mouse.get_pos()
-        x = x // self.WIDTH_STEP
-        y = y // self.HEIGHT_STEP
+        if not player.is_AI:
+            x, y = pygame.mouse.get_pos()
+            x = x // self.WIDTH_STEP
+            y = y // self.HEIGHT_STEP
+        else:
+            x, y = player.player_board_interface()
 
         if player.char is 'x' and self.state[x, y] == 0:
             self.state[x, y] = 1
@@ -64,8 +68,13 @@ class Board(pygame.sprite.Sprite):
             self.state[x, y] =-1
             self.move_number += 1
 
+        for i in self.players:
+            if i.char != player.char:
+                i.board_player_interface(x, y)
+
         if self.move_number >= 2 * (self.WIN_SCORE-1):
             return self.win_test()
+
         return 0
 
     def update(self):
@@ -140,26 +149,133 @@ class Board(pygame.sprite.Sprite):
         elif result < 0:
             print("O Wins")
             return -1
+        elif self.move_number == self.SIZE**2:
+            print("Game is a Draw")
+            return None
         else:
             return 0
 
 class Player(pygame.sprite.Sprite):
 
-    def __init__(self, first=True, width=80, height=100):
+    def __init__(self, *, first=True, is_AI=False, SIZE=3, WIN_SCORE=3):
         super(Player, self).__init__()
-            
+
         if first:
             self.char = 'x'
         else:
             self.char = 'o'
- 
+
+        self.is_AI = is_AI
+        self.SIZE = SIZE
+        self.WIN_SCORE = WIN_SCORE
+        self.state = np.zeros((self.SIZE, self.SIZE))
+        self.current_move = None
+
+    def board_player_interface(self, x, y):
+        if self.char == 'x':
+            self.state[x, y] = -1
+        else:
+            self.state[x, y] = 1
+
+    def player_board_interface(self):
+        return self.current_move
+
+    def get_chilren(self, state):
+        children = []
+        for x, y in self.get_actions():
+            children.append(self.generate_state(state, x, y))
+        return children
+
+    def generate_state(self, parent_state, x, y):
+        new_state = np.copy(parent_state)
+        return self.perform_action(x, y, new_state)
+
+    def get_state(self):
+        return self.board.state
+
+    def perform_action(self, x, y, state):
+        if self.char == 'x' and self.check_if_valid_move(x, y):
+            state[x, y] = 1
+        elif self.char == 'o' and self.check_if_valid_move(x, y):
+            state[x, y] = -1
+        return state
+
+    def get_actions(self, state):
+        actions = []
+        for i in range(self.SIZE):
+            for j in range(self.SIZE):
+                if self.check_if_valid_move(i, j, state):
+                    actions.append((i, j))
+        return actions
+
+    def check_if_valid_move(self, x, y, state):
+        return state[x, y] == 0
+
+    def goal_test(self, state):
+        result = self.board_traversal(state)
+        if result > 0 and self.char == 'x':
+            return +1
+        elif result < 0 and self.char == '0':
+            return -1
+        else:
+            return 0
+
+    def update_sum(self, a, b):
+        if b == 0:
+            return 0
+        elif a > 0 and b < 0:
+            return -1
+        elif a < 0 and b > 0:
+            return 1
+        else:
+            return a + b
+
+    def board_traversal(self, state):
+        sum = 0
+        sum_transposed = 0
+        sum_diag1 = 0
+        sum_diag2 = 0
+        sum_off_diag1 = 0
+        sum_off_diag2 = 0
+
+        for i in range(self.SIZE):
+            for j in range(self.SIZE):
+                sum = self.update_sum(sum, state[i, j])
+                sum_transposed =  self.update_sum(sum_transposed, state[j, i])
+                if sum == self.WIN_SCORE or sum_transposed == self.WIN_SCORE:
+                    return 1 # X Wins
+                elif sum == -self.WIN_SCORE or sum_transposed == -self.WIN_SCORE:
+                    return -1 # O Wins
+            sum = 0
+            sum_transposed = 0
+
+        for i in range(self.SIZE):
+            for j in range(self.SIZE):
+                if j+i >= self.SIZE:
+                    break
+
+                sum_diag1 = self.update_sum(sum_diag1, state[j, j + i])
+                sum_diag2 = self.update_sum(sum_diag2, state[j + i, j])
+                sum_off_diag1 = self.update_sum(sum_off_diag1, state[i + j, self.SIZE - j - 1])
+                sum_off_diag2 = self.update_sum(sum_off_diag2, state[j, self.SIZE - j - i - 1])
+
+                for k in [sum_diag1, sum_diag2, sum_off_diag1, sum_off_diag2]:
+                    if k == self.WIN_SCORE:
+                        return 1 # X Wins
+                    elif k == -self.WIN_SCORE:
+                        return -1 # O Wins
+            sum_diag1 = 0
+            sum_diag2 = 0
+            sum_off_diag1 = 0
+            sum_off_diag2 = 0
+        return 0
 
 def main():
     pygame.init()
     running = True
-    board = Board(720, 720, 3, 3)
     player_x = Player(first=True)
     player_o = Player(first=False)
+    board = Board(720, 720, 3, 3, [player_x, player_o])
     winner  = 0
     board.welcome_user()
     pygame.display.flip()
@@ -194,16 +310,20 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if board.move_number % 2 == 0:
                     winner = board.track_clicks(player_x)
-                    if winner > 0:
-                        board.screen.fill((255, 255, 255))
-                        board.congratulate_winner('x')
                 else:
                     winner = board.track_clicks(player_o)
-                    if winner  < 0:
-                        board.screen.fill((255, 255, 255))
-                        board.congratulate_winner('o')
 
-        if winner == 0:
+        if winner is None:
+            board.screen.fill((255, 255, 255))
+            board.congratulate_winner('x')
+            board.congratulate_winner('o')
+        elif winner > 0:
+            board.screen.fill((255, 255, 255))
+            board.congratulate_winner('x')
+        elif winner  < 0:
+            board.screen.fill((255, 255, 255))
+            board.congratulate_winner('o')
+        else:
             board.draw_board()
             board.update()
 
