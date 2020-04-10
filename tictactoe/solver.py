@@ -158,7 +158,7 @@ class Engine:
         else:
             return a + b
 
-    def board_traversal_heuristic(self, state, current_move, player):
+    def board_traversal_heuristic(self, state, current_move):
 
         x, y = current_move
         sum_vertical_left = 0
@@ -173,7 +173,7 @@ class Engine:
 
         for i in range(self.WIN_SCORE):
             try:
-                sum_vertical_left = ([self.update_heuristic_sum(sum_vertical_left, state[x, y + i])])
+                sum_vertical_left = self.update_heuristic_sum(sum_vertical_left, state[x, y + i])
             except IndexError:
                 pass
             try:
@@ -205,7 +205,11 @@ class Engine:
                 sum_off_diag_right = self.update_heuristic_sum(sum_off_diag_right, state[x - i, y + i])
             except IndexError:
                 pass
-
+        """
+        In the loop below, a higher value of k means a more dense neighbourhood.
+        With a move here, you either are either winning or screwing your opponent.
+        This helps deal with suboptimal players as well.
+        """
         for k in [sum_vertical_left, sum_horizontal_left, sum_diag_left, sum_off_diag_left,
                   sum_vertical_right, sum_horizontal_right, sum_diag_right, sum_off_diag_right]:
 
@@ -213,8 +217,8 @@ class Engine:
 
         return heuristic_value
 
-    def evaluation_heuristic(self, state, player):
-        return self.board_traversal_heuristic(state, player, self.dummy_move)
+    def evaluation_heuristic(self, state):
+        return self.board_traversal_heuristic(state, self.dummy_move)
 
     def goal_test(self, state):
         return self.board_traversal(state, self.dummy_move)
@@ -329,7 +333,7 @@ class Engine:
     def depth_limited_minimax(self, state, player, depth):
 
         if depth == 0:
-            return (-1, -1), self.board_traversal_heuristic(state, player)
+            return (-1, -1), self.evaluation_heuristic(state)
 
         value = self.goal_test(state)
 
@@ -380,7 +384,7 @@ class Engine:
     def depth_limited_alpha_beta_pruning(self, state, player, depth, alpha, beta):
 
         if depth == 0:
-            return (-1, -1), self.board_traversal_heuristic(state, player)
+            return (-1, -1), self.evaluation_heuristic(state)
 
         value = self.goal_test(state)
 
