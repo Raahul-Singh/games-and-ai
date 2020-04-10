@@ -25,9 +25,14 @@ class Engine:
         if self.state[x, y] != 0:
             x += 1
             y += 1
+
+        if self.player == 'x':
+            self.state[x, y] = 1
+        else:
+            self.state[x, y] = -1
         self.current_move = (x, y)
         self.dummy_move = (x, y)
-
+        ## print("In open game\n",self.state,"\n**********")
     def perform_minimax(self):
 
         if self.first_move:
@@ -50,7 +55,8 @@ class Engine:
             self.first_move = False
             return
 
-        (x, y), _ = self.minimax_alpha_beta_pruning(self.state, self.player, -np.inf, np.inf)
+        (x, y), val = self.minimax_alpha_beta_pruning(self.state, self.player, -np.inf, np.inf)
+      #  print("value of current move = ", val)
         if self.player == 'x':
             self.state[x, y] = 1
         else:
@@ -64,10 +70,6 @@ class Engine:
             self.open_game()
             self.first_move = False
             return
-
-        if depth % 2 == 0:
-            raise UserWarning("Better check your own end states")
-            depth += 1
 
         (x, y), _ = self.depth_limited_minimax(self.state, self.player, depth)
         if self.player == 'x':
@@ -83,12 +85,10 @@ class Engine:
             self.open_game()
             self.first_move = False
             return
+        ## print("In minimax alphabeta, depth limit\n", self.state.T,"\n**********")
 
-        if depth % 2 == 0:
-            raise UserWarning("Better check your own end states")
-            depth += 1
-
-        (x, y), _ = self.depth_limited_alpha_beta_pruning(self.state, self.player, depth, -np.inf, np.inf)
+        (x, y), val = self.depth_limited_alpha_beta_pruning(self.state, self.player, depth, -np.inf, np.inf)
+        print("value of current move = ", val)
         if self.player == 'x':
             self.state[x, y] = 1
         else:
@@ -151,74 +151,96 @@ class Engine:
         return 0
 
     def update_heuristic_sum(self, a, b):
-        if a > 0:
-            return np.max([a, a + b])
-        elif a < 0:
-            return np.min([a, a + b])
-        else:
-            return a + b
+        return a + b
 
     def board_traversal_heuristic(self, state, current_move):
 
         x, y = current_move
-        sum_vertical_left = 0
-        sum_horizontal_left = 0
-        sum_diag_left = 0
-        sum_off_diag_left = 0
-        sum_vertical_right = 0
-        sum_horizontal_right = 0
-        sum_diag_right = 0
-        sum_off_diag_right = 0
+        sum_vertical_left = state[x, y]
+        sum_horizontal_left = state[x, y]
+        sum_diag_left = state[x, y]
+        sum_off_diag_left = state[x, y]
+        sum_vertical_right = state[x, y]
+        sum_horizontal_right = state[x, y]
+        sum_diag_right = state[x, y]
+        sum_off_diag_right = state[x, y]
         heuristic_value = 0
-
-        for i in range(self.WIN_SCORE):
-            try:
+        # a = np.copy(self.state)
+      #  print(f"x ,y= {x,y}")
+        for i in range(1, self.WIN_SCORE + 1):
+                 
+            if y + i < self.SIZE:
                 sum_vertical_left = self.update_heuristic_sum(sum_vertical_left, state[x, y + i])
-            except IndexError:
-                pass
-            try:
-                sum_horizontal_left =  self.update_heuristic_sum(sum_horizontal_left, state[x + i, y])
-            except IndexError:
-                pass
-            try:
-                sum_diag_left = self.update_heuristic_sum(sum_diag_left, state[x + i, y + i])
-            except IndexError:
-                pass
-            try:
-                sum_off_diag_left = self.update_heuristic_sum(sum_off_diag_left, state[x + i, y - i])
-            except IndexError:
-                pass
+                # a[x, y + i] = sum_vertical_left
+              #  print(a.T)
+                # input("\ncontinue?\n")
 
-            try:
+            if x + i < self.SIZE:
+                sum_horizontal_left =  self.update_heuristic_sum(sum_horizontal_left, state[x + i, y])
+                # a[x + i, y] = sum_horizontal_left
+              #  print(a.T)
+                # input("\ncontinue?\n")
+
+            if y + i < self.SIZE and x + i < self.SIZE:
+                sum_diag_left = self.update_heuristic_sum(sum_diag_left, state[x + i, y + i])
+                # a[x + i, y + i] = sum_diag_left
+              #  print(a.T)
+                # input("\ncontinue?\n")
+
+            if x + i < self.SIZE and y - i >= 0:
+                sum_off_diag_left = self.update_heuristic_sum(sum_off_diag_left, state[x + i, y - i])
+                # a[x + i, y - i] = sum_off_diag_left
+              #  print(a.T)
+                # input("\ncontinue?\n")
+
+            if y - i >= 0:
                 sum_vertical_right = self.update_heuristic_sum(sum_vertical_right, state[x, y - i])
-            except IndexError:
-                pass
-            try:
+                # a[x, y - i] = sum_vertical_right
+              #  print(a.T)
+                # input("\ncontinue?\n")
+
+            if x - i >= 0:
                 sum_horizontal_right =  self.update_heuristic_sum(sum_horizontal_right, state[x - i, y])
-            except IndexError:
-                pass
-            try:
+                # a[x - i, y] = sum_horizontal_right
+              #  print(a.T)
+                # input("\ncontinue?\n")
+
+            if y - i >= 0 and x - i >= 0:
                 sum_diag_right = self.update_heuristic_sum(sum_diag_right, state[x - i, y - i])
-            except IndexError:
-                pass
-            try:
+                # a[x - i, y - i] = sum_diag_right
+              #  print(a.T)
+                # input("\ncontinue?\n")
+
+            if x - i >= 0 and y + i < self.SIZE:
                 sum_off_diag_right = self.update_heuristic_sum(sum_off_diag_right, state[x - i, y + i])
-            except IndexError:
-                pass
+                # a[x - i, y + i] = sum_horizontal_right
+              #  print(a.T)
+                # input("\ncontinue?\n")
+
+          #  print("Sum values = ")
+            # for k in [sum_vertical_left, sum_horizontal_left, sum_diag_left, sum_off_diag_left,
+            #             sum_vertical_right, sum_horizontal_right, sum_diag_right, sum_off_diag_right]:
+              #  print(k, end=" ")
+
+            # input(f"at {i} iteration, continue?\n")
+
         """
         In the loop below, a higher value of k means a more dense neighbourhood.
         With a move here, you either are either winning or screwing your opponent.
         This helps deal with suboptimal players as well.
         """
+      #  print("value state =\n", a.T)
         for k in [sum_vertical_left, sum_horizontal_left, sum_diag_left, sum_off_diag_left,
                   sum_vertical_right, sum_horizontal_right, sum_diag_right, sum_off_diag_right]:
-
+            ## print(k, end=" ")
             heuristic_value += k**2
+        # input(f"heuristic = {heuristic_value} continue?\n")
 
         return heuristic_value
 
-    def evaluation_heuristic(self, state):
-        return self.board_traversal_heuristic(state, self.dummy_move)
+    def evaluation_heuristic(self, state, player):
+        heuristic_value = self.board_traversal_heuristic(state, self.dummy_move)
+        return heuristic_value if player == 'x' else -heuristic_value
 
     def goal_test(self, state):
         return self.board_traversal(state, self.dummy_move)
@@ -333,7 +355,7 @@ class Engine:
     def depth_limited_minimax(self, state, player, depth):
 
         if depth == 0:
-            return (-1, -1), self.evaluation_heuristic(state)
+            return (-1, -1), self.evaluation_heuristic(state, player)
 
         value = self.goal_test(state)
 
@@ -381,10 +403,14 @@ class Engine:
 
             return best_move, best_value
 
+    def get_distance(self, square_i):
+        return np.sqrt(np.abs(square_i[0] - self.dummy_move[0]) ** 2 + 
+                np.abs(square_i[1] - self.dummy_move[1]) ** 2)
+
     def depth_limited_alpha_beta_pruning(self, state, player, depth, alpha, beta):
 
         if depth == 0:
-            return (-1, -1), self.evaluation_heuristic(state)
+            return (-1, -1), self.evaluation_heuristic(state, player)
 
         value = self.goal_test(state)
 
@@ -394,11 +420,20 @@ class Engine:
         elif player == 'x':
             best_value = -np.inf
             best_move = (-1, -1)
-            actions = self.get_actions(state)
+            possible_actions = self.get_actions(state)
 
-            if len(actions) == 0:
+            if len(possible_actions) == 0:
                 return (-1, -1), 0
 
+            """
+            Locality modification : reduces search tree and makes up for stupid opponent
+            + 1 is heuristic
+            sorting ensures move closeness
+            """
+            actions = []
+            for i in possible_actions:
+                if self.get_distance(i) < self.WIN_SCORE + 1:
+                    actions.append(i)
             for action in actions:
                 x, y = action
                 state[x, y] = 1
