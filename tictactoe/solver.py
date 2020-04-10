@@ -125,22 +125,14 @@ class Engine:
         sum_off_diag = 0
  
         for i in range(-self.WIN_SCORE, self.WIN_SCORE):
-            try:
+            if y + i < self.SIZE and y + i >= 0:
                 sum_vertical = self.update_sum(sum_vertical, state[x, y + i])
-            except IndexError:
-                pass
-            try:
+            if x + i < self.SIZE and x + i >= 0:
                 sum_horizontal =  self.update_sum(sum_horizontal, state[x + i, y])
-            except IndexError:
-                pass
-            try:
+            if y + i < self.SIZE and y + i > 0 and x + i < self.SIZE and x + i >= 0:
                 sum_diag = self.update_sum(sum_diag, state[x + i, y + i])
-            except IndexError:
-                pass
-            try:
+            if y - i < self.SIZE and y - i > 0 and x + i < self.SIZE and x + i >= 0:
                 sum_off_diag = self.update_sum(sum_off_diag, state[x + i, y - i])
-            except IndexError:
-                pass
 
             for k in [sum_vertical, sum_horizontal, sum_diag, sum_off_diag]:
                 if k == self.WIN_SCORE:
