@@ -183,14 +183,14 @@ class Player(pygame.sprite.Sprite):
         return self.engine.current_move
 
     def player_reset(self):
-        self.engine.state = np.zeros((self.SIZE, self.SIZE))
+        self.engine.reset()
 
 def main():
     pygame.init()
     running = True
-    player_x = Player(first=True,  is_AI=True, SIZE=5, WIN_SCORE=4)
-    player_o = Player(first=False, is_AI=True, SIZE=5, WIN_SCORE=4)
-    board = Board(800, 800, 5, 4, [player_x, player_o])
+    player_x = Player(first=True,  is_AI=True, SIZE=4, WIN_SCORE=3)
+    player_o = Player(first=False, is_AI=False, SIZE=4, WIN_SCORE=3)
+    board = Board(800, 800, 4, 3, [player_x, player_o])
     winner  = 0
     board.welcome_user()
     pygame.display.flip()
