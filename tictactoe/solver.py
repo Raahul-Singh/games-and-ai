@@ -161,62 +161,31 @@ class Engine:
         heuristic_value = 0
         # a = np.copy(self.state)
       #  print(f"x ,y= {x,y}")
-        for i in range(1, self.WIN_SCORE):
+        for i in range(1, 2 * self.WIN_SCORE):
                  
             if y + i < self.SIZE:
                 sum_vertical_left = self.update_heuristic_sum(sum_vertical_left, state[x, y + i])
-                # a[x, y + i] = sum_vertical_left
-              #  print(a.T)
-                # input("\ncontinue?\n")
 
             if x + i < self.SIZE:
                 sum_horizontal_left =  self.update_heuristic_sum(sum_horizontal_left, state[x + i, y])
-                # a[x + i, y] = sum_horizontal_left
-              #  print(a.T)
-                # input("\ncontinue?\n")
 
             if y + i < self.SIZE and x + i < self.SIZE:
                 sum_diag_left = self.update_heuristic_sum(sum_diag_left, state[x + i, y + i])
-                # a[x + i, y + i] = sum_diag_left
-              #  print(a.T)
-                # input("\ncontinue?\n")
 
             if x + i < self.SIZE and y - i >= 0:
                 sum_off_diag_left = self.update_heuristic_sum(sum_off_diag_left, state[x + i, y - i])
-                # a[x + i, y - i] = sum_off_diag_left
-              #  print(a.T)
-                # input("\ncontinue?\n")
 
             if y - i >= 0:
                 sum_vertical_right = self.update_heuristic_sum(sum_vertical_right, state[x, y - i])
-                # a[x, y - i] = sum_vertical_right
-              #  print(a.T)
-                # input("\ncontinue?\n")
 
             if x - i >= 0:
                 sum_horizontal_right =  self.update_heuristic_sum(sum_horizontal_right, state[x - i, y])
-                # a[x - i, y] = sum_horizontal_right
-              #  print(a.T)
-                # input("\ncontinue?\n")
 
             if y - i >= 0 and x - i >= 0:
                 sum_diag_right = self.update_heuristic_sum(sum_diag_right, state[x - i, y - i])
-                # a[x - i, y - i] = sum_diag_right
-              #  print(a.T)
-                # input("\ncontinue?\n")
 
             if x - i >= 0 and y + i < self.SIZE:
                 sum_off_diag_right = self.update_heuristic_sum(sum_off_diag_right, state[x - i, y + i])
-                # a[x - i, y + i] = sum_horizontal_right
-              #  print(a.T)
-                # input("\ncontinue?\n")
-
-          #  print("Sum values = ")
-            # for k in [sum_vertical_left, sum_horizontal_left, sum_diag_left, sum_off_diag_left,
-            #             sum_vertical_right, sum_horizontal_right, sum_diag_right, sum_off_diag_right]:
-              #  print(k, end=" ")
-
-            # input(f"at {i} iteration, continue?\n")
 
         """
         In the loop below, a higher value of k means a more dense neighbourhood.
