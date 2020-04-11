@@ -105,49 +105,30 @@ class Board(pygame.sprite.Sprite):
             return a + b
 
     def board_traversal(self, state, x, y):
+        sum_vertical = 0
+        sum_horizontal = 0
+        sum_diag = 0
+        sum_off_diag = 0
 
-        sum_vertical_left = state[x, y]
-        sum_horizontal_left = state[x, y]
-        sum_diag_left = state[x, y]
-        sum_off_diag_left = state[x, y]
-        sum_vertical_right = state[x, y]
-        sum_horizontal_right = state[x, y]
-        sum_diag_right = state[x, y]
-        sum_off_diag_right = state[x, y]
+        for i in range(-self.WIN_SCORE + 1, self.WIN_SCORE):
+            if 0 <= y + i < self.SIZE:
+                sum_vertical = self.update_sum(sum_vertical, state[x, y + i])
 
-        for i in range(1, self.WIN_SCORE):
-                 
-            if y + i < self.SIZE:
-                sum_vertical_left = self.update_sum(sum_vertical_left, state[x, y + i])
-
-            if x + i < self.SIZE:
-                sum_horizontal_left =  self.update_sum(sum_horizontal_left, state[x + i, y])
-
-            if y + i < self.SIZE and x + i < self.SIZE:
-                sum_diag_left = self.update_sum(sum_diag_left, state[x + i, y + i])
-
-            if x + i < self.SIZE and y - i >= 0:
-                sum_off_diag_left = self.update_sum(sum_off_diag_left, state[x + i, y - i])
-
-            if y - i >= 0:
-                sum_vertical_right = self.update_sum(sum_vertical_right, state[x, y - i])
-
-            if x - i >= 0:
-                sum_horizontal_right =  self.update_sum(sum_horizontal_right, state[x - i, y])
-
-            if y - i >= 0 and x - i >= 0:
-                sum_diag_right = self.update_sum(sum_diag_right, state[x - i, y - i])
-
-            if x - i >= 0 and y + i < self.SIZE:
-                sum_off_diag_right = self.update_sum(sum_off_diag_right, state[x - i, y + i])
+            if 0 <= x + i < self.SIZE:
+                sum_horizontal =  self.update_sum(sum_horizontal, state[x + i, y])
         
-        for k in [sum_vertical_left, sum_horizontal_left, sum_diag_left, sum_off_diag_left,
-                  sum_vertical_right, sum_horizontal_right, sum_diag_right, sum_off_diag_right]:
-            if k == self.WIN_SCORE:
-                return 1 # X Wins
-            elif k == -self.WIN_SCORE:
-                return -1 # O Wins
+            if 0 <= y + i < self.SIZE and 0 <= x + i < self.SIZE:
+                sum_diag = self.update_sum(sum_diag, state[x + i, y + i])
 
+            if 0 <= x + i < self.SIZE and 0 <= y - i < self.SIZE:
+                sum_off_diag = self.update_sum(sum_off_diag, state[x + i, y - i])
+
+            if i >= 0:
+                for k in [sum_vertical, sum_horizontal, sum_diag, sum_off_diag]:
+                    if k == self.WIN_SCORE:
+                        return 1 # X Wins
+                    elif k == -self.WIN_SCORE:
+                        return -1 # O Wins
         return 0
 
     def win_test(self, x, y):
@@ -190,7 +171,7 @@ class Player(pygame.sprite.Sprite):
     def player_board_interface(self):
         # self.engine.perform_minimax()
         # self.engine.perform_depth_limited_minimax(depth=3)
-        self.engine.perform_depth_limited_alpha_beta_pruning(depth=6)
+        self.engine.perform_depth_limited_alpha_beta_pruning(depth=3)
         # self.engine.perform_minimax_alpha_beta_pruning()
         return self.engine.current_move
 
@@ -200,7 +181,7 @@ class Player(pygame.sprite.Sprite):
 def main():
     pygame.init()
     running = True
-    player_x = Player(first=True,  is_AI=True, SIZE=5, WIN_SCORE=3)
+    player_x = Player(first=True,  is_AI=False, SIZE=5, WIN_SCORE=3)
     player_o = Player(first=False, is_AI=False, SIZE=5, WIN_SCORE=3)
     board = Board(800, 800, 5, 3, [player_x, player_o])
     winner  = 0
