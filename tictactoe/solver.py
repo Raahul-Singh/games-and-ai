@@ -161,7 +161,7 @@ class Engine:
         heuristic_value = 0
         # a = np.copy(self.state)
       #  print(f"x ,y= {x,y}")
-        for i in range(1, self.WIN_SCORE + 1):
+        for i in range(1, self.WIN_SCORE):
                  
             if y + i < self.SIZE:
                 sum_vertical_left = self.update_heuristic_sum(sum_vertical_left, state[x, y + i])
@@ -426,7 +426,7 @@ class Engine:
             """
             actions = []
             for i in possible_actions:
-                if self.get_distance(i) < 2 * self.WIN_SCORE - depth:
+                if self.get_distance(i) < self.WIN_SCORE:
                     actions.append(i)
 
             for action in actions:
