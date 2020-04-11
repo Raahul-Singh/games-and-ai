@@ -73,7 +73,7 @@ class Board(pygame.sprite.Sprite):
                 i.board_player_interface(x, y)
 
         if self.move_number >= 2 * (self.WIN_SCORE-1):
-            return self.win_test()
+            return self.win_test(x, y)
 
         return 0
 
@@ -104,43 +104,54 @@ class Board(pygame.sprite.Sprite):
         else:
             return a + b
 
-    def board_traversal(self):
-        sum = 0
-        sum_transposed = 0
-        sum_diag1 = 0
-        sum_diag2 = 0
-        sum_off_diag1 = 0
-        sum_off_diag2 = 0
+    def board_traversal(self, state, x, y):
 
-        for i in range(self.SIZE):
-            for j in range(self.SIZE):
+        sum_vertical_left = state[x, y]
+        sum_horizontal_left = state[x, y]
+        sum_diag_left = state[x, y]
+        sum_off_diag_left = state[x, y]
+        sum_vertical_right = state[x, y]
+        sum_horizontal_right = state[x, y]
+        sum_diag_right = state[x, y]
+        sum_off_diag_right = state[x, y]
 
-                sum = self.update_sum(sum, self.state[i, j])
-                sum_transposed =  self.update_sum(sum_transposed, self.state[j, i])
+        for i in range(1, self.WIN_SCORE):
+                 
+            if y + i < self.SIZE:
+                sum_vertical_left = self.update_sum(sum_vertical_left, state[x, y + i])
 
-                if not (j+i >= self.SIZE):
-                    sum_diag1 = self.update_sum(sum_diag1, self.state[j, j + i])
-                    sum_diag2 = self.update_sum(sum_diag2, self.state[j + i, j])
-                    sum_off_diag1 = self.update_sum(sum_off_diag1, self.state[i + j, self.SIZE - j - 1])
-                    sum_off_diag2 = self.update_sum(sum_off_diag2, self.state[j, self.SIZE - j - i - 1])
+            if x + i < self.SIZE:
+                sum_horizontal_left =  self.update_sum(sum_horizontal_left, state[x + i, y])
 
-                for k in [sum, sum_transposed, sum_diag1, sum_diag2, sum_off_diag1, sum_off_diag2]:
-                    if k == self.WIN_SCORE:
-                        return 1 # X Wins
-                    elif k == -self.WIN_SCORE:
-                        return -1 # O Wins
+            if y + i < self.SIZE and x + i < self.SIZE:
+                sum_diag_left = self.update_sum(sum_diag_left, state[x + i, y + i])
 
-            sum = 0
-            sum_transposed = 0
-            sum_diag1 = 0
-            sum_diag2 = 0
-            sum_off_diag1 = 0
-            sum_off_diag2 = 0
+            if x + i < self.SIZE and y - i >= 0:
+                sum_off_diag_left = self.update_sum(sum_off_diag_left, state[x + i, y - i])
+
+            if y - i >= 0:
+                sum_vertical_right = self.update_sum(sum_vertical_right, state[x, y - i])
+
+            if x - i >= 0:
+                sum_horizontal_right =  self.update_sum(sum_horizontal_right, state[x - i, y])
+
+            if y - i >= 0 and x - i >= 0:
+                sum_diag_right = self.update_sum(sum_diag_right, state[x - i, y - i])
+
+            if x - i >= 0 and y + i < self.SIZE:
+                sum_off_diag_right = self.update_sum(sum_off_diag_right, state[x - i, y + i])
+        
+        for k in [sum_vertical_left, sum_horizontal_left, sum_diag_left, sum_off_diag_left,
+                  sum_vertical_right, sum_horizontal_right, sum_diag_right, sum_off_diag_right]:
+            if k == self.WIN_SCORE:
+                return 1 # X Wins
+            elif k == -self.WIN_SCORE:
+                return -1 # O Wins
 
         return 0
 
-    def win_test(self):
-        result = self.board_traversal()
+    def win_test(self, x, y):
+        result = self.board_traversal(self.state, x, y)
         if result > 0 :
             print("X Wins")
             return +1
@@ -170,6 +181,7 @@ class Player(pygame.sprite.Sprite):
             self.engine = Engine(self.SIZE, self.WIN_SCORE, self.char)
 
     def board_player_interface(self, x, y):
+        self.engine.opponent_move = (x, y)
         if self.char == 'x':
             self.engine.state[x, y] = -1
         else:
@@ -178,7 +190,7 @@ class Player(pygame.sprite.Sprite):
     def player_board_interface(self):
         # self.engine.perform_minimax()
         # self.engine.perform_depth_limited_minimax(depth=3)
-        self.engine.perform_depth_limited_alpha_beta_pruning(depth=5)
+        self.engine.perform_depth_limited_alpha_beta_pruning(depth=6)
         # self.engine.perform_minimax_alpha_beta_pruning()
         return self.engine.current_move
 
@@ -188,9 +200,9 @@ class Player(pygame.sprite.Sprite):
 def main():
     pygame.init()
     running = True
-    player_x = Player(first=True,  is_AI=True, SIZE=3, WIN_SCORE=3)
-    player_o = Player(first=False, is_AI=False, SIZE=3, WIN_SCORE=3)
-    board = Board(800, 800, 3, 3, [player_x, player_o])
+    player_x = Player(first=True,  is_AI=True, SIZE=5, WIN_SCORE=3)
+    player_o = Player(first=False, is_AI=False, SIZE=5, WIN_SCORE=3)
+    board = Board(800, 800, 5, 3, [player_x, player_o])
     winner  = 0
     board.welcome_user()
     pygame.display.flip()
