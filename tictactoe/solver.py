@@ -146,7 +146,7 @@ class Engine:
     def update_heuristic_sum(self, a, b):
         return a + b
 
-    def board_traversal_heuristic(self, state, current_move, player):
+    def board_traversal_heuristic(self, state, current_move):
 
         x, y = current_move
         sum_vertical_left = state[x, y]
@@ -159,7 +159,9 @@ class Engine:
         sum_off_diag_right = state[x, y]
         heuristic_value = 0
 
-        for i in range(1, 2 * self.WIN_SCORE):
+            
+
+        for i in range(1, self.WIN_SCORE):
 
             if y + i < self.SIZE:
                 sum_vertical_left = self.update_heuristic_sum(sum_vertical_left, state[x, y + i])
@@ -185,6 +187,22 @@ class Engine:
             if x - i >= 0 and y + i < self.SIZE:
                 sum_off_diag_right = self.update_heuristic_sum(sum_off_diag_right, state[x - i, y + i])
 
+            if state[x, y] == 1:
+                if (sum_vertical_left + sum_vertical_right >= self.WIN_SCORE or
+                    sum_horizontal_left + sum_horizontal_right >= self.WIN_SCORE or
+                    sum_diag_left + sum_diag_right >= self.WIN_SCORE or
+                    sum_off_diag_left + sum_off_diag_right >= self.WIN_SCORE):
+                    
+                    return np.inf
+
+            else:
+                if (sum_vertical_left + sum_vertical_right >= self.WIN_SCORE or
+                    sum_horizontal_left + sum_horizontal_right >= self.WIN_SCORE or
+                    sum_diag_left + sum_diag_right >= self.WIN_SCORE or
+                    sum_off_diag_left + sum_off_diag_right >= self.WIN_SCORE):
+
+                    return -np.inf
+
         """
         In the loop below, a higher value of k means a more dense neighbourhood.
         With a move here, you either are either winning or screwing your opponent.
@@ -192,12 +210,12 @@ class Engine:
         """
         for k in [sum_vertical_left, sum_horizontal_left, sum_diag_left, sum_off_diag_left,
                   sum_vertical_right, sum_horizontal_right, sum_diag_right, sum_off_diag_right]:
-            heuristic_value += (k ** 2)
+            heuristic_value += (k ** 2) if state[x, y] == 1 else -(k ** 2)
 
         return heuristic_value
 
     def evaluation_heuristic(self, state, player):
-        heuristic_value = self.board_traversal_heuristic(state, self.dummy_move, player)
+        heuristic_value = self.board_traversal_heuristic(state, self.dummy_move)
         return heuristic_value
 
     def goal_test(self, state):
