@@ -181,9 +181,9 @@ class Player(pygame.sprite.Sprite):
 def main():
     pygame.init()
     running = True
-    player_x = Player(first=True,  is_AI=True, SIZE=7, WIN_SCORE=3)
-    player_o = Player(first=False, is_AI=False, SIZE=7, WIN_SCORE=3)
-    board = Board(800, 800, 7, 3, [player_x, player_o])
+    player_x = Player(first=True,  is_AI=True, SIZE=5, WIN_SCORE=3)
+    player_o = Player(first=False, is_AI=True, SIZE=5, WIN_SCORE=3)
+    board = Board(800, 800, 5, 3, [player_x, player_o])
     winner  = 0
     board.welcome_user()
     pygame.display.flip()

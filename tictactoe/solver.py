@@ -87,7 +87,6 @@ class Engine:
             return
 
         (x, y), val = self.depth_limited_alpha_beta_pruning(self.state, self.player, depth, -np.inf, np.inf)
-        print("value of current move = ", val)
         if self.player == 'x':
             self.state[x, y] = 1
         else:
