@@ -159,10 +159,9 @@ class Engine:
         sum_diag_right = state[x, y]
         sum_off_diag_right = state[x, y]
         heuristic_value = 0
-        # a = np.copy(self.state)
-      #  print(f"x ,y= {x,y}")
+
         for i in range(1, 2 * self.WIN_SCORE):
-                 
+
             if y + i < self.SIZE:
                 sum_vertical_left = self.update_heuristic_sum(sum_vertical_left, state[x, y + i])
 
@@ -192,12 +191,9 @@ class Engine:
         With a move here, you either are either winning or screwing your opponent.
         This helps deal with suboptimal players as well.
         """
-        #print("value state =\n", a.T)
         for k in [sum_vertical_left, sum_horizontal_left, sum_diag_left, sum_off_diag_left,
                   sum_vertical_right, sum_horizontal_right, sum_diag_right, sum_off_diag_right]:
-            ## print(k, end=" ")
-            heuristic_value += (k ** 2)  
-        # input(f"heuristic = {heuristic_value} continue?\n")
+            heuristic_value += (k ** 2)
 
         return heuristic_value
 
