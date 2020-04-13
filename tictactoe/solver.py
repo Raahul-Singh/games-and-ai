@@ -223,11 +223,6 @@ class Engine:
 
                     return np.inf
 
-        """
-        In the loop below, a higher value of k means a more dense neighbourhood.
-        With a move here, you either are either winning or screwing your opponent.
-        This helps deal with suboptimal players as well.
-        """
         for k in [sum_vertical_left, sum_horizontal_left, sum_diag_left, sum_off_diag_left,
                   sum_vertical_right, sum_horizontal_right, sum_diag_right, sum_off_diag_right]:
             heuristic_value += (k ** 2) if state[x, y] == -1 else -(k ** 2)
