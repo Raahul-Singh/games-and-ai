@@ -213,7 +213,7 @@ class Engine:
                     sum_diag_left + sum_diag_right >= self.WIN_SCORE or
                     sum_off_diag_left + sum_off_diag_right >= self.WIN_SCORE):
                     
-                    return -np.inf
+                    return np.inf
 
             else:
                 if (sum_vertical_left + sum_vertical_right <= -self.WIN_SCORE or
@@ -221,7 +221,7 @@ class Engine:
                     sum_diag_left + sum_diag_right <= -self.WIN_SCORE or
                     sum_off_diag_left + sum_off_diag_right <= -self.WIN_SCORE):
 
-                    return np.inf
+                    return -np.inf
 
         for k in [sum_vertical_left, sum_horizontal_left, sum_diag_left, sum_off_diag_left,
                   sum_vertical_right, sum_horizontal_right, sum_diag_right, sum_off_diag_right]:
