@@ -88,17 +88,17 @@ class IO():
         configuration_font = pygame.font.SysFont('Times New Roman', 32)
         
         win_text = "This round was a draw!"
-        if winner == 'x':
+        if winner == 1:
             win_text = "X won this round!"
-        elif winner == 'o':
+        elif winner == -1:
             win_text = "O won this round!"
 
         current_winner = configuration_font.render(win_text, True, pygame.Color('black'))
 
-        heading = configuration_font.render("Overall Score", True, pygame.Color('black'))
-        x_score = configuration_font.render(f"     X Won {x_score} times", True, pygame.Color('black'))
-        o_score = configuration_font.render(f"     O Won {o_score} times", True, pygame.Color('black'))
-        draw = configuration_font.render(f"Game Drawn {draw} times", True, pygame.Color('black'))
+        heading = configuration_font.render("   Overall Score", True, pygame.Color('black'))
+        x_score = configuration_font.render(f"X Won      {x_score} times", True, pygame.Color('black'))
+        o_score = configuration_font.render(f"O Won      {o_score} times", True, pygame.Color('black'))
+        draw = configuration_font.render(f"Game Drawn    {draw} times", True, pygame.Color('black'))
 
         clock = pygame.time.Clock()
         replay = ToggleButton(self.SCREEN_WIDTH * 0.20, self.SCREEN_HEIGHT * 0.80, 50, 32,"", 0, text_inactive="Click to replay!")
@@ -130,7 +130,7 @@ class IO():
             screen.blit(heading, ((self.SCREEN_WIDTH - heading.get_width()) // 2, self.SCREEN_HEIGHT * 0.30))
             screen.blit(x_score, ((self.SCREEN_WIDTH - x_score.get_width()) // 2, self.SCREEN_HEIGHT * 0.40))
             screen.blit(o_score, ((self.SCREEN_WIDTH - o_score.get_width()) // 2, self.SCREEN_HEIGHT * 0.50))
-            screen.blit(draw, ((self.SCREEN_WIDTH - draw.get_width()) // 2, 0.60))
+            screen.blit(draw, ((self.SCREEN_WIDTH - draw.get_width()) // 2, self.SCREEN_HEIGHT * 0.60))
             pygame.display.flip()
             clock.tick(30)
 
@@ -159,15 +159,6 @@ class Board(pygame.sprite.Sprite):
         self.screen.fill((255, 255, 255))
         self.draw_lines()
         self.update()
-
-    def congratulate_winner(self, winner):
-        if winner == 'x':
-            winner = pygame.transform.scale(pygame.image.load('X.png'),
-                                       (self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
-        else:
-            winner = pygame.transform.scale(pygame.image.load('O.png'),
-                            (self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
-        self.screen.blit(winner, (0,0))
 
     def draw_lines(self):
 
