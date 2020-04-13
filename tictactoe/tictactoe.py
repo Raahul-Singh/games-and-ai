@@ -82,7 +82,54 @@ class IO():
             clock.tick(30)
 
         return (board_size.text, win_score.text, player_x.active, player_y.active)
-    
+
+    def get_ai_configuration(self, player):
+        screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        configuration_font = pygame.font.SysFont('Times New Roman', 32)
+        heading = configuration_font.render(f"Player {player} AI Setup!", True, pygame.Color('black'))
+        warn = False
+        warning = configuration_font.render("Please fix Input!", True, pygame.Color('black'))
+        clock = pygame.time.Clock()
+        search_depth = NumericalInput(self.SCREEN_WIDTH * 0.60, self.SCREEN_HEIGHT * 0.30, 50, 32, "Search Depth ? '0' denotes full depth", 30, text='0')
+        use_alpha_beta = ToggleButton(self.SCREEN_WIDTH * 0.60, self.SCREEN_HEIGHT * 0.40, 50, 32, "Use Alpha Beta Pruning ?", 30)
+        use_improvement = ToggleButton(self.SCREEN_WIDTH * 0.60, self.SCREEN_HEIGHT * 0.50, 50, 32, "Use Field of View Improvement ?", 30)
+        use_randomisation = ToggleButton(self.SCREEN_WIDTH * 0.60, self.SCREEN_HEIGHT * 0.60, 50, 32, "Use Randomisation ?", 30)
+        submit = ToggleButton(self.SCREEN_WIDTH * 0.55, self.SCREEN_HEIGHT * 0.80, 50, 32, "Submit ?", self.SCREEN_WIDTH * 0.50 - 85)
+        input_boxes = [search_depth, use_alpha_beta, use_improvement, use_randomisation, submit]
+        running = True
+
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                for box in input_boxes:
+                    box.handle_event(event)
+
+            for box in input_boxes:
+                box.update()
+
+            screen.fill((255, 255, 255))
+            for box in input_boxes:
+                box.draw(screen)
+
+            if submit.active:
+                try:
+                    search_depth.text = int(search_depth.text)
+                    search_depth.text = int(search_depth.text)
+                    running = False
+                except ValueError:
+                    submit.active = False
+                    warn = True
+
+            if warn:
+                screen.blit(warning, ((self.SCREEN_WIDTH - warning.get_width()) // 2, self.SCREEN_HEIGHT * 0.20))
+        
+            screen.blit(heading, ((self.SCREEN_WIDTH - heading.get_width()) // 2, self.SCREEN_HEIGHT * 0.10))
+            pygame.display.flip()
+            clock.tick(30)
+
+        return (search_depth.text, use_alpha_beta.active, use_improvement.active, use_randomisation.active)
+
     def postgame(self, winner, x_score=0, o_score=0, draw=0):
         screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
         configuration_font = pygame.font.SysFont('Times New Roman', 32)
@@ -286,10 +333,7 @@ class Player():
             self.engine.state[x, y] = 1
 
     def player_board_interface(self):
-        # self.engine.perform_minimax()
-        # self.engine.perform_depth_limited_minimax(depth=3)
-        self.engine.perform_depth_limited_alpha_beta_pruning(depth=3)
-        # self.engine.perform_minimax_alpha_beta_pruning()
+        self.engine.run()
         return self.engine.current_move
 
     def player_reset(self):
@@ -302,6 +346,16 @@ class Game():
         board_size, win_score, x_ai, o_ai = self.io.get_configuration()
         self.player_x = Player(first=True,  is_AI=x_ai, SIZE=board_size, WIN_SCORE=win_score)
         self.player_o = Player(first=False, is_AI=o_ai, SIZE=board_size, WIN_SCORE=win_score)
+
+        x_ai_configuration = None
+        o_ai_configuration = None
+        if x_ai:
+            x_ai_configuration = self.io.get_ai_configuration('X')
+            self.player_x.engine.model_setup(x_ai_configuration)
+        if o_ai:
+            o_ai_configuration = self.io.get_ai_configuration('O')
+            self.player_o.engine.model_setup(o_ai_configuration)
+
         self.board = Board(800, 800, board_size, win_score, [self.player_x, self.player_o])
         self.x_score = 0
         self.o_score = 0
