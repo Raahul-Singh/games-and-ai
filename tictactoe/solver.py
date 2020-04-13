@@ -196,10 +196,10 @@ class Engine:
                     return np.inf
 
             else:
-                if (sum_vertical_left + sum_vertical_right >= self.WIN_SCORE or
-                    sum_horizontal_left + sum_horizontal_right >= self.WIN_SCORE or
-                    sum_diag_left + sum_diag_right >= self.WIN_SCORE or
-                    sum_off_diag_left + sum_off_diag_right >= self.WIN_SCORE):
+                if (sum_vertical_left + sum_vertical_right <= -self.WIN_SCORE or
+                    sum_horizontal_left + sum_horizontal_right <= -self.WIN_SCORE or
+                    sum_diag_left + sum_diag_right <= -self.WIN_SCORE or
+                    sum_off_diag_left + sum_off_diag_right <= -self.WIN_SCORE):
 
                     return -np.inf
 
@@ -445,7 +445,7 @@ class Engine:
             """
             actions = []
             for i in possible_actions:
-                if self.get_distance(i) <  self.WIN_SCORE + 1:
+                if self.get_distance(i) < self.WIN_SCORE:
                     actions.append(i)
 
             for action in actions:
