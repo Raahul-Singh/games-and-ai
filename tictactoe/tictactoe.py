@@ -1,7 +1,7 @@
 import pygame
 import numpy as np
 from solver import Engine
-from IO import *
+from IO import NumericalInput, ToggleButton
 
 class IO():
     
@@ -23,6 +23,8 @@ class IO():
 
         while(running):
             for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                        running = False
                 if event.type == pygame.KEYDOWN:
                     running = False
             screen.blit(welcome_page, (0,0))
@@ -55,6 +57,8 @@ class IO():
 
         while(running):
             for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                        running = False
                 if event.type == pygame.KEYDOWN:
                     running = False
 
@@ -84,6 +88,8 @@ class IO():
 
         while(running):
             for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                        running = False
                 if event.type == pygame.KEYDOWN:
                     running = False
 
@@ -257,7 +263,9 @@ class IO():
         running = True
 
         while(running):
-            for event in pygame.event.get():
+            for event in pygame.event.get():                
+                if event.type == pygame.QUIT:
+                        running = False
                 if event.type == pygame.KEYDOWN:
                     running = False
 
