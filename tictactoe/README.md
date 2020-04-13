@@ -56,5 +56,6 @@ This prevents a bias that the search algorithm may develop as it would otherwise
 quadrant first in each iteration.
 This also diversifies the search space and is akin to random restarts in local search.
 
+Further, by keeping a track of the previous moves, the goal test is done in order O(win score), again exploiting the locality of moves in tictactoe.
 
-
+Thus, a combination of `limiting Field of View`, a heuristic that exploits the `locality of previous moves`, `randomisation of search moves` and a clever implementation of `goal test` allows this program to play near optimally and with a near constant speed irrespective of the board size.
