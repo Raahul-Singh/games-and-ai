@@ -25,7 +25,7 @@ class IO():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                         running = False
-                if event.type == pygame.KEYDOWN:
+                if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
                     running = False
             screen.blit(welcome_page, (0,0))
 
@@ -59,7 +59,7 @@ class IO():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                         running = False
-                if event.type == pygame.KEYDOWN:
+                if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
                     running = False
 
             screen.fill((255, 255, 255))
@@ -90,7 +90,7 @@ class IO():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                         running = False
-                if event.type == pygame.KEYDOWN:
+                if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
                     running = False
 
             screen.fill((255, 255, 255))
@@ -161,7 +161,7 @@ class IO():
         use_alpha_beta = ToggleButton(self.SCREEN_WIDTH * 0.60, self.SCREEN_HEIGHT * 0.40, 50, 32, "Use Alpha Beta Pruning ?", 30)
         use_improvement = ToggleButton(self.SCREEN_WIDTH * 0.60, self.SCREEN_HEIGHT * 0.50, 50, 32, "Use Field of View Improvement ?", 30)
         use_randomisation = ToggleButton(self.SCREEN_WIDTH * 0.60, self.SCREEN_HEIGHT * 0.60, 50, 32, "Use Randomisation ?", 30)
-        submit = ToggleButton(self.SCREEN_WIDTH * 0.55, self.SCREEN_HEIGHT * 0.80, 50, 32, "Submit ?", self.SCREEN_WIDTH * 0.50 - 85)
+        submit = ToggleButton(self.SCREEN_WIDTH * 0.45, self.SCREEN_HEIGHT * 0.80, 50, 32,"", 0, text_inactive="Submit?")
         input_boxes = [search_depth, use_alpha_beta, use_improvement, use_randomisation, submit]
         running = True
 
@@ -266,7 +266,7 @@ class IO():
             for event in pygame.event.get():                
                 if event.type == pygame.QUIT:
                         running = False
-                if event.type == pygame.KEYDOWN:
+                if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
                     running = False
 
             screen.fill((255, 255, 255))
