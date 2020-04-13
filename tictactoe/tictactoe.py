@@ -490,7 +490,8 @@ class Game():
     def post_game(self):
         if self.postgame == 1:
             self.new_game()
-        self.io.bid_adieu(self.x_score, self.o_score, self.draw_score)
+        elif self.postgame == 0:
+            self.io.bid_adieu(self.x_score, self.o_score, self.draw_score)
 
     def new_game(self):
         self.board.reset_board()
