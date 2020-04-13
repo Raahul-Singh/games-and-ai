@@ -36,6 +36,35 @@ class IO():
                                         self.SCREEN_HEIGHT - 200))
             pygame.display.flip()
 
+    def show_instructions(self):
+        heading_font = pygame.font.SysFont('Times New Roman', 50)
+        instruction_font = pygame.font.SysFont('Times New Roman', 32)        
+        heading_text = heading_font.render("Playing Instuctions!", True, pygame.Color('black'))
+        player_instuctions = instruction_font.render("Click on a square to mark it!", True, pygame.Color('black'))
+        ai_instuctions = instruction_font.render("Then, click anywhere to let AI play!", True, pygame.Color('black'))
+        ai_warning = instruction_font.render("The AI will only start to 'think' after you have clicked.", True, pygame.Color('black'))
+        ai_clarification = instruction_font.render("Doesn't matter where you click on AI's turn!", True, pygame.Color('black'))
+        instruction_text = instruction_font.render("Press any key to Continue!", True, pygame.Color('black'))
+
+        screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+
+        running = True
+
+        while(running):
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    running = False
+
+            screen.fill((255, 255, 255))
+            screen.blit(heading_text, ((self.SCREEN_WIDTH - heading_text.get_width()) // 2, self.SCREEN_HEIGHT * 0.20))
+            screen.blit(player_instuctions, ((self.SCREEN_WIDTH - player_instuctions.get_width()) // 2, self.SCREEN_HEIGHT * 0.40))
+            screen.blit(ai_instuctions, ((self.SCREEN_WIDTH - ai_instuctions.get_width()) // 2, self.SCREEN_HEIGHT * 0.50))
+            screen.blit(ai_warning, ((self.SCREEN_WIDTH - ai_warning.get_width()) // 2, self.SCREEN_HEIGHT * 0.60))
+            screen.blit(ai_clarification, ((self.SCREEN_WIDTH - ai_clarification.get_width()) // 2, self.SCREEN_HEIGHT * 0.70))
+            screen.blit(instruction_text, ((self.SCREEN_WIDTH - instruction_text.get_width()) // 2,
+                                            self.SCREEN_HEIGHT - 100))
+            pygame.display.flip()
+
     def get_configuration(self):
         screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
         configuration_font = pygame.font.SysFont('Times New Roman', 32)
@@ -415,6 +444,7 @@ class Game():
 def main():
     pygame.init()
     game = Game()
+    game.io.show_instructions()
     game.run_game()
     pygame.quit()
 
