@@ -38,7 +38,6 @@ class Engine:
             self.open_game()
             self.first_move = False
         else:
-            print(self.model)
             self.model()
 
     def reset(self):
