@@ -24,7 +24,6 @@ class IO():
         while(running):
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
-                    print("Start!")
                     running = False
             screen.blit(welcome_page, (0,0))
 
@@ -36,7 +35,40 @@ class IO():
                                         self.SCREEN_HEIGHT - 200))
             pygame.display.flip()
 
-    def show_instructions(self):
+    def show_ui_instructions(self):
+        heading_font = pygame.font.SysFont('Times New Roman', 50)
+        instruction_font = pygame.font.SysFont('Times New Roman', 32)        
+        heading_text = heading_font.render("User Interface Instuctions!", True, pygame.Color('black'))
+        numerical_instuctions = instruction_font.render("For numerical inputs, " +
+                                                        "click on the box and type an integer!",
+                                                         True, pygame.Color('black'))
+        button_instuctions = instruction_font.render("For button inputs " + 
+                                                     "click on the button to toggle!", 
+                                                      True, pygame.Color('black'))
+        submit_instuctions = instruction_font.render("Finally, click on 'Submit' to continue!",
+                                                      True, pygame.Color('black'))
+        instruction_text = instruction_font.render("Press any key to Continue!", True, pygame.Color('black'))
+
+        screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+
+        running = True
+
+        while(running):
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    running = False
+
+            screen.fill((255, 255, 255))
+            screen.blit(heading_text, ((self.SCREEN_WIDTH - heading_text.get_width()) // 2, self.SCREEN_HEIGHT * 0.20))
+            screen.blit(numerical_instuctions, ((self.SCREEN_WIDTH - numerical_instuctions.get_width()) // 2, self.SCREEN_HEIGHT * 0.40))
+            screen.blit(button_instuctions, ((self.SCREEN_WIDTH - button_instuctions.get_width()) // 2, self.SCREEN_HEIGHT * 0.50))
+            screen.blit(submit_instuctions, ((self.SCREEN_WIDTH - submit_instuctions.get_width()) // 2, self.SCREEN_HEIGHT * 0.60))
+            screen.blit(instruction_text, ((self.SCREEN_WIDTH - instruction_text.get_width()) // 2,
+                                            self.SCREEN_HEIGHT - 100))
+            pygame.display.flip()
+
+
+    def show_game_instructions(self):
         heading_font = pygame.font.SysFont('Times New Roman', 50)
         instruction_font = pygame.font.SysFont('Times New Roman', 32)        
         heading_text = heading_font.render("Playing Instuctions!", True, pygame.Color('black'))
@@ -72,11 +104,11 @@ class IO():
         warn = False
         warning = configuration_font.render("Please fix Input!", True, pygame.Color('black'))
         clock = pygame.time.Clock()
-        board_size = NumericalInput(self.SCREEN_WIDTH * 0.60, self.SCREEN_HEIGHT * 0.30, 50, 32, "Board Size ?", 30)
-        win_score = NumericalInput(self.SCREEN_WIDTH * 0.60, self.SCREEN_HEIGHT * 0.40, 50, 32, "Win Score ?", 30)
+        board_size = NumericalInput(self.SCREEN_WIDTH * 0.60, self.SCREEN_HEIGHT * 0.30, 50, 32, "Board Size ?", 30, text="3")
+        win_score = NumericalInput(self.SCREEN_WIDTH * 0.60, self.SCREEN_HEIGHT * 0.40, 50, 32, "Win Score ?", 30, text="3")
         player_x = ToggleButton(self.SCREEN_WIDTH * 0.60, self.SCREEN_HEIGHT * 0.50, 50, 32, "Is player X an AI?", 30)
         player_y = ToggleButton(self.SCREEN_WIDTH * 0.60, self.SCREEN_HEIGHT * 0.60, 50, 32, "Is player O an AI?", 30)
-        submit = ToggleButton(self.SCREEN_WIDTH * 0.55, self.SCREEN_HEIGHT * 0.80, 50, 32, "Submit ?", self.SCREEN_WIDTH * 0.50 - 85)
+        submit = ToggleButton(self.SCREEN_WIDTH * 0.45, self.SCREEN_HEIGHT * 0.80, 50, 32,"", 0, text_inactive="Submit?")
         input_boxes = [board_size, win_score, player_x, player_y, submit]
         running = True
 
@@ -329,13 +361,10 @@ class Board(pygame.sprite.Sprite):
     def win_test(self, x, y):
         result = self.board_traversal(self.state, x, y)
         if result > 0 :
-            print("X Wins")
             return +1
         elif result < 0:
-            print("O Wins")
             return -1
         elif self.move_number == self.SIZE**2:
-            print("Game is a Draw")
             return None
         else:
             return 0
@@ -372,6 +401,8 @@ class Game():
     def __init__(self):
         self.io = IO()
         self.io.welcome_user()
+        self.io.show_ui_instructions()
+        self.io.show_game_instructions()
         board_size, win_score, x_ai, o_ai = self.io.get_configuration()
         self.player_x = Player(first=True,  is_AI=x_ai, SIZE=board_size, WIN_SCORE=win_score)
         self.player_o = Player(first=False, is_AI=o_ai, SIZE=board_size, WIN_SCORE=win_score)
@@ -431,7 +462,6 @@ class Game():
         self.post_game()
 
     def post_game(self):
-        # print("in post_game val = ",self.postgame)
         if self.postgame == 1:
             self.new_game()
     
@@ -444,7 +474,6 @@ class Game():
 def main():
     pygame.init()
     game = Game()
-    game.io.show_instructions()
     game.run_game()
     pygame.quit()
 
