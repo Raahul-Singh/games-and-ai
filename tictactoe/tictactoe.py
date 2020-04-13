@@ -242,6 +242,35 @@ class IO():
             pygame.display.flip()
             clock.tick(30)
 
+    def bid_adieu(self, x_score=0, o_score=0, draw=0):
+        heading_font = pygame.font.SysFont('Times New Roman', 50)
+        configuration_font = pygame.font.SysFont('Times New Roman', 32)        
+        heading = heading_font.render("Thanks for playing!", True, pygame.Color('black'))
+        final_score = configuration_font.render("   Final Score!", True, pygame.Color('black'))
+        x_score = configuration_font.render(f"X Won      {x_score} times", True, pygame.Color('black'))
+        o_score = configuration_font.render(f"O Won      {o_score} times", True, pygame.Color('black'))
+        draw = configuration_font.render(f"Game Drawn    {draw} times", True, pygame.Color('black'))
+        goodbye = configuration_font.render("Press any key to bid adieu!", True, pygame.Color('black'))
+
+        screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+
+        running = True
+
+        while(running):
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    running = False
+
+            screen.fill((255, 255, 255))
+            screen.blit(heading, ((self.SCREEN_WIDTH - heading.get_width()) // 2, self.SCREEN_HEIGHT * 0.15))
+            screen.blit(final_score, ((self.SCREEN_WIDTH - final_score.get_width()) // 2, self.SCREEN_HEIGHT * 0.30))
+            screen.blit(x_score, ((self.SCREEN_WIDTH - x_score.get_width()) // 2, self.SCREEN_HEIGHT * 0.40))
+            screen.blit(o_score, ((self.SCREEN_WIDTH - o_score.get_width()) // 2, self.SCREEN_HEIGHT * 0.50))
+            screen.blit(draw, ((self.SCREEN_WIDTH - draw.get_width()) // 2, self.SCREEN_HEIGHT * 0.60))
+            screen.blit(goodbye, ((self.SCREEN_WIDTH - goodbye.get_width()) // 2, self.SCREEN_HEIGHT * 0.80))
+            
+            pygame.display.flip()
+            
 class Board(pygame.sprite.Sprite):
 
     def __init__(self, SCREEN_WIDTH, SCREEN_HEIGHT, SIZE, WIN_SCORE, players):
@@ -432,9 +461,6 @@ class Game():
                     event.key == pygame.K_ESCAPE):
                     running = False
 
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                    self.board.reset_board()
-
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.board.move_number % 2 == 0:
                         self.winner = self.board.track_clicks(self.player_x)
@@ -464,7 +490,8 @@ class Game():
     def post_game(self):
         if self.postgame == 1:
             self.new_game()
-    
+        self.io.bid_adieu(self.x_score, self.o_score, self.draw_score)
+
     def new_game(self):
         self.board.reset_board()
         self.winner = 0
